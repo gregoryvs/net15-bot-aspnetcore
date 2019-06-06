@@ -9,6 +9,7 @@ namespace SimpleBotCore.Logic
 {
     public class SimpleBotUser
     {
+       
         public string Reply(SimpleMessage message)
         {
             var client = new MongoClient("mongodb://localhost:27017");
@@ -16,13 +17,17 @@ namespace SimpleBotCore.Logic
             var col = db.GetCollection<BsonDocument>("col01");
 
             var doc = new BsonDocument() {
+                { "id", message.Id},
                 { "user", message.User },
                 {"mensagem", message.Text }
             };
 
             col.InsertOne(doc);
 
-            return $"{message.User} disse '{message.Text}'";
+            var filtro = Builders<BsonDocument>.Filter.Eq("id", message.Id);
+            var count = col.Find(filtro).ToList().Count();
+
+            return $"{message.User} disse '{message.Text}' '{count}' mesagens";
         }
 
     }
